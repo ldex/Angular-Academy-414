@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { delay, Observable, tap } from 'rxjs';
+import { delay, map, Observable, shareReplay, tap } from 'rxjs';
 import { Product } from '../models/product.interface';
 import { HttpClient } from '@angular/common/http';
 
@@ -16,13 +16,21 @@ export class ProductService {
     this.initProducts()
   }
 
+  getProductById(id: number): Observable<Product> {
+    return this
+              .products$
+              .pipe(
+                map(products => products.find(product => product.id == id))
+              )
+  }
+
   initProducts() {
     this.products$ = this
                       .http
                       .get<Product[]>(this.baseUrl)
                       .pipe(
-                        delay(1500), // pour la démo!!
-                        tap(console.table)
+                        tap(console.table),
+                        shareReplay()
                       )
   }
 }
